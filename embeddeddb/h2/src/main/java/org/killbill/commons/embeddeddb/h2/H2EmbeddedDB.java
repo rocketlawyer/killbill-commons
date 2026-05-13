@@ -50,7 +50,7 @@ public class H2EmbeddedDB extends EmbeddedDB {
     }
 
     public H2EmbeddedDB(final String databaseName, final String username, final String password) {
-        this(databaseName, username, password, "jdbc:h2:mem:" + databaseName + ";MODE=MYSQL;DB_CLOSE_DELAY=-1;MVCC=true");
+        this(databaseName, username, password, "jdbc:h2:mem:" + databaseName + ";MODE=MYSQL;DB_CLOSE_DELAY=-1");
     }
 
     public H2EmbeddedDB(final String databaseName, final String username, final String password, final String jdbcConnectionString) {

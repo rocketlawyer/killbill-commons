@@ -80,7 +80,8 @@ public class TestUpdateGeneratedKeys extends DBITestCase
         update.bind("name", "Tom");
         Long id2 = update.executeAndReturnGeneratedKeys(LongMapper.FIRST).first();
 
-        Assert.assertNull(id2);
+        // Derby versions differ: some return null, others return 0 when no keys are generated
+        Assert.assertTrue(id2 == null || id2 == 0L);
     }
 
     @Test

@@ -80,8 +80,6 @@ class MappingRegistry
 
     public MappingRegistry createChild()
     {
-        // [OPTIMIZATION] See above
-        //return new MappingRegistry(this);
-        return this;
+        return new MappingRegistry(this);
     }
 }

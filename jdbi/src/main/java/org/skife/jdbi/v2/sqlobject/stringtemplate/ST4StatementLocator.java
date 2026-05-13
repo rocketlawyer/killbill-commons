@@ -58,6 +58,19 @@ public class ST4StatementLocator implements StatementLocator {
     }
 
     /**
+     * Statement locator that obtains the {@link STGroup} from the {@link StatementContext} on each lookup
+     * (for example using attributes defined on the handle before creating the statement).
+     */
+    public static StatementLocator fromDynamicGroup(final Function<StatementContext, STGroup> groupSource) {
+        return new StatementLocator() {
+            @Override
+            public String locate(final String name, final StatementContext ctx) throws Exception {
+                return new ST4StatementLocator(groupSource.apply(ctx)).locate(name, ctx);
+            }
+        };
+    }
+
+    /**
      * Obtains a locator based on a classpath path, using a global template group CACHE.
      */
     public static StatementLocator fromClasspath(final String path) {

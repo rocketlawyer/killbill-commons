@@ -85,9 +85,7 @@ class Foreman
 
     public Foreman createChild()
     {
-        // [OPTIMIZATION] See above
-        //return new Foreman(factories);
-        return this;
+        return new Foreman(factories);
     }
 
 

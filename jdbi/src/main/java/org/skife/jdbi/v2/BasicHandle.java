@@ -394,15 +394,13 @@ class BasicHandle implements Handle
     @Override
     public void registerMapper(ResultSetMapper mapper)
     {
-        //mappingRegistry.add(mapper);
-        throw new UnsupportedOperationException("[OPTIMIZATION] Registering a custom ResultSetMapper on a Handle is disabled");
+        mappingRegistry.add(mapper);
     }
 
     @Override
     public void registerMapper(ResultSetMapperFactory factory)
     {
-        //mappingRegistry.add(factory);
-        throw new UnsupportedOperationException("[OPTIMIZATION] Registering a custom ResultSetMapperFactory on a Handle is disabled");
+        mappingRegistry.add(factory);
     }
 
     @Override
@@ -446,8 +444,7 @@ class BasicHandle implements Handle
     @Override
     public void registerArgumentFactory(ArgumentFactory argumentFactory)
     {
-        //this.foreman.register(argumentFactory);
-        throw new UnsupportedOperationException("[OPTIMIZATION] Registering a custom ArgumentFactory on a Handle is disabled");
+        this.foreman.register(argumentFactory);
     }
 
     @Override

@@ -40,7 +40,7 @@ public class TestStringTemplate3StatementLocatorWithSuperGroupAndCache
 
         // Test statement locator from child template group and verify templates table_name got correctly evaluated
         final StatementContext ctx = new TestingStatementContext(new HashMap<String, Object>());
-        final String getIngredients = locator.locate("getIngredients", ctx);
+        final String getIngredients = locator.locate("getIngredients", ctx).replace("\r", "");
         Assert.assertEquals("select tea\n" +
             ", mushroom\n" +
             ", sugar from kombucha;", getIngredients);
@@ -65,7 +65,7 @@ public class TestStringTemplate3StatementLocatorWithSuperGroupAndCache
         ctx.setAttribute("historyTableName", "superDrink");
 
         // Test the attributes get correctly evaluated
-        final String getFromHistoryTableName = locator.locate("getFromHistoryTableName", ctx);
+        final String getFromHistoryTableName = locator.locate("getFromHistoryTableName", ctx).replace("\r", "");
         Assert.assertEquals("select tea\n" +
             ", mushroom\n" +
             ", sugar from superDrink;", getFromHistoryTableName);
@@ -76,7 +76,7 @@ public class TestStringTemplate3StatementLocatorWithSuperGroupAndCache
         // Try another time with same key-- to verify the attributes of the StringTemplate got reset correctly and we don't end up with twice the name of the table
         // (By default StringTemplate attributes value are appended when if we set them multiple times)
 
-        final String getFromHistoryTableNameAgain = locator.locate("getFromHistoryTableName", ctx);
+        final String getFromHistoryTableNameAgain = locator.locate("getFromHistoryTableName", ctx).replace("\r", "");
         Assert.assertEquals("select tea\n" +
             ", mushroom\n" +
             ", sugar from superDrink;", getFromHistoryTableNameAgain);

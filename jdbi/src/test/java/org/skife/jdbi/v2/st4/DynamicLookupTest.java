@@ -44,8 +44,7 @@ public class DynamicLookupTest {
     @Category(JDBIQuarantineTests.class)
     public void testFancyDynamicTemplateLookups() throws Exception {
         final DBI dbi = new DBI(h2);
-        /* [OPTIMIZATION] Disabled to optimization
-        dbi.setStatementLocator(new ST4StatementLocator(new Function<StatementContext, STGroup>() {
+        dbi.setStatementLocator(ST4StatementLocator.fromDynamicGroup(new Function<StatementContext, STGroup>() {
             @Nullable
             @Override
             public STGroup apply(@Nullable final StatementContext ctx) {
@@ -53,7 +52,6 @@ public class DynamicLookupTest {
                                             .toString());
             }
         }));
-        */
 
         Handle h = dbi.open();
         try {

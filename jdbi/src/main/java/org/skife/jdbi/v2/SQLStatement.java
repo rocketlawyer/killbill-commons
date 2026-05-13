@@ -116,9 +116,8 @@ public abstract class SQLStatement<SelfType extends SQLStatement<SelfType>> exte
 
     public SelfType registerArgumentFactory(ArgumentFactory<?> argumentFactory)
     {
-        //getForeman().register(argumentFactory);
-        //return (SelfType) this;
-        throw new UnsupportedOperationException("[OPTIMIZATION] Registering a custom ArgumentFactory on a SQLStatement is disabled");
+        getForeman().register(argumentFactory);
+        return (SelfType) this;
     }
 
     /**

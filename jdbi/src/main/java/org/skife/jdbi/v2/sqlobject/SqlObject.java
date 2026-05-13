@@ -128,6 +128,9 @@ class SqlObject
             else if (method.getName().equals("close") && method.getRawMember().getParameterTypes().length == 0) {
                 handlers.put(raw_method, new CloseHandler());
             }
+            else if ("finalize".equals(raw_method.getName()) && raw_method.getParameterTypes().length == 0) {
+                // Issue #82: omit handler so SqlObject.invoke delegates to invokeSuper without opening a connection
+            }
             else if (raw_method.isAnnotationPresent(Transaction.class)) {
                 handlers.put(raw_method, new PassThroughTransactionHandler(raw_method, raw_method.getAnnotation(Transaction.class)));
             }

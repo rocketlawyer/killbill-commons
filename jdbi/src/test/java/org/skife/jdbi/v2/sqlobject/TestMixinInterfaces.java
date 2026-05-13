@@ -52,7 +52,7 @@ public class TestMixinInterfaces
     public void setUp() throws Exception
     {
         JdbcDataSource ds = new JdbcDataSource();
-        ds.setURL(String.format("jdbc:h2:mem:%s;MVCC=TRUE", UUID.randomUUID()));
+        ds.setURL(String.format("jdbc:h2:mem:%s;DB_CLOSE_DELAY=-1", UUID.randomUUID()));
         dbi = new DBI(ds);
         handle = dbi.open();
 

@@ -48,17 +48,13 @@ class ContainerFactoryRegistry
 
     void register(ContainerFactory<?> factory)
     {
-        // [OPTIMIZATION] Disable feature to avoid creating lots of ContainerFactoryRegistry objects
-        //factories.add(factory);
-        //cache.clear();
-        throw new UnsupportedOperationException("[OPTIMIZATION] Registering a custom ContainerFactory is disabled");
+        factories.add(factory);
+        cache.clear();
     }
 
     public ContainerFactoryRegistry createChild()
     {
-        // [OPTIMIZATION] See above
-        //return new ContainerFactoryRegistry(this);
-        return this;
+        return new ContainerFactoryRegistry(this);
     }
 
     public ContainerBuilder createBuilderFor(Class<?> type)

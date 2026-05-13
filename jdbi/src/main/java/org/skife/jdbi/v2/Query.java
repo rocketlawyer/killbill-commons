@@ -400,13 +400,11 @@ public class Query<ResultType> extends SQLStatement<Query<ResultType>> implement
 
     public void registerMapper(ResultSetMapper m)
     {
-        //this.mappingRegistry.add(new InferredMapperFactory(m));
-        throw new UnsupportedOperationException("[OPTIMIZATION] Registering a custom ResultSetMapper on a Query is disabled");
+        this.mappingRegistry.add(new InferredMapperFactory(m));
     }
 
     public void registerMapper(ResultSetMapperFactory m)
     {
-        //this.mappingRegistry.add(m);
-        throw new UnsupportedOperationException("[OPTIMIZATION] Registering a custom ResultSetMapperFactory on a Query is disabled");
+        this.mappingRegistry.add(m);
     }
 }

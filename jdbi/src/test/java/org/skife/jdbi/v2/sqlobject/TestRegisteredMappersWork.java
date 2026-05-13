@@ -178,13 +178,17 @@ public class TestRegisteredMappersWork
     }
 
     @Test(expected = DBIException.class)
-    @Category(JDBIQuarantineTests.class) // Feature disabled
+    @Category(JDBIQuarantineTests.class)
     public void testNoRootRegistrations() throws Exception
     {
-        Handle h = dbi.open();
-        h.insert("insert into something (id, name) values (1, 'Henning')");
+        final JdbcDataSource ds = new JdbcDataSource();
+        ds.setURL("jdbc:h2:mem:" + UUID.randomUUID());
+        final DBI dbiWithoutMappers = new DBI(ds);
+        final Handle h = dbiWithoutMappers.open();
         try {
-            Something henning = h.createQuery("select id, name from something where id = 1")
+            h.execute("create table something (id int primary key, name varchar(100))");
+            h.insert("insert into something (id, name) values (1, 'Henning')");
+            h.createQuery("select id, name from something where id = 1")
                                  .mapTo(Something.class)
                                  .first();
             fail("should have raised an exception");

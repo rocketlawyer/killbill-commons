@@ -19,10 +19,7 @@ package org.killbill.xmlloader;
 
 import java.io.InputStream;
 import java.net.URL;
-import java.net.URLClassLoader;
 import java.util.Properties;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
@@ -30,25 +27,20 @@ import org.testng.annotations.Test;
 
 public class TestUriAccessor {
 
-    private static final Pattern GUAVA_PATTERN = Pattern.compile(".*/guava-(\\d{2}.\\d).jar$");
-
     private URL guavaUrl = null;
     private String guavaVersion = null;
 
     @BeforeClass(groups = "fast")
     public void setUp() throws Exception {
-        // Find the Guava Jar on the filesystem
-        final ClassLoader systemClassLoader = ClassLoader.getSystemClassLoader();
-        final URL[] urls = ((URLClassLoader) systemClassLoader).getURLs();
-        for (final URL url : urls) {
-            final Matcher matcher = GUAVA_PATTERN.matcher(url.toString());
-            if (matcher.matches()) {
-                guavaUrl = url;
-                guavaVersion = matcher.group(1);
-                break;
-            }
-        }
+        guavaUrl = com.google.common.base.Preconditions.class.getProtectionDomain().getCodeSource().getLocation();
         Assert.assertNotNull(guavaUrl);
+        final String guavaPomProperties = "jar:" + guavaUrl + "!/META-INF/maven/com.google.guava/guava/pom.properties";
+        try (final InputStream inputStream = UriAccessor.accessUri(guavaPomProperties)) {
+            Assert.assertNotNull(inputStream);
+            final Properties properties = new Properties();
+            properties.load(inputStream);
+            guavaVersion = properties.getProperty("version");
+        }
         Assert.assertNotNull(guavaVersion);
     }
 
