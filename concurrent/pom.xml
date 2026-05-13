@@ -19,12 +19,17 @@
     <parent>
         <artifactId>killbill-commons</artifactId>
         <groupId>org.kill-bill.commons</groupId>
-        <version>0.20.10</version>
+        <version>0.20.10.1</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
     <artifactId>killbill-concurrent</artifactId>
     <name>Kill Bill library of java.util.concurrent wrappers</name>
     <dependencies>
+        <dependency>
+            <groupId>ch.qos.reload4j</groupId>
+            <artifactId>reload4j</artifactId>
+            <scope>test</scope>
+        </dependency>
         <dependency>
             <groupId>com.google.code.findbugs</groupId>
             <artifactId>annotations</artifactId>
@@ -34,18 +39,8 @@
             <artifactId>guava</artifactId>
         </dependency>
         <dependency>
-            <groupId>log4j</groupId>
-            <artifactId>log4j</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-api</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.slf4j</groupId>
-            <artifactId>slf4j-log4j12</artifactId>
-            <scope>test</scope>
         </dependency>
         <!-- Test scope -->
         <dependency>
