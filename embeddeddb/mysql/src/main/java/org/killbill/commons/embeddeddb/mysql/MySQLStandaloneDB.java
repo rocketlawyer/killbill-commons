@@ -65,29 +65,33 @@ public class MySQLStandaloneDB extends GenericStandaloneDB {
 
     @Override
     public void initialize() throws IOException {
-        super.initialize();
+        try {
+            super.initialize();
 
-        if (useMariaDB) {
-            final MariaDbDataSource mariaDBDataSource = new MariaDbDataSource();
-            try {
-                mariaDBDataSource.setUrl(jdbcConnectionString);
-            } catch (final SQLException e) {
-                throw new IOException(e);
+            if (useMariaDB) {
+                final MariaDbDataSource mariaDBDataSource = new MariaDbDataSource();
+                try {
+                    mariaDBDataSource.setUrl(jdbcConnectionString);
+                } catch (final SQLException e) {
+                    throw new IOException(e);
+                }
+                mariaDBDataSource.setDatabaseName(databaseName);
+                mariaDBDataSource.setUser(username);
+                mariaDBDataSource.setPassword(password);
+                mariaDBDataSource.setPort(port);
+                dataSource = mariaDBDataSource;
+            } else {
+                final MysqlDataSource mysqlDataSource = new MysqlDataSource();
+                mysqlDataSource.setDatabaseName(databaseName);
+                mysqlDataSource.setUser(username);
+                mysqlDataSource.setPassword(password);
+                mysqlDataSource.setPort(port);
+                // See http://dev.mysql.com/doc/refman/5.0/en/connector-j-reference-configuration-properties.html
+                mysqlDataSource.setURL(jdbcConnectionString);
+                dataSource = mysqlDataSource;
             }
-            mariaDBDataSource.setDatabaseName(databaseName);
-            mariaDBDataSource.setUser(username);
-            mariaDBDataSource.setPassword(password);
-            mariaDBDataSource.setPort(port);
-            dataSource = mariaDBDataSource;
-        } else {
-            final MysqlDataSource mysqlDataSource = new MysqlDataSource();
-            mysqlDataSource.setDatabaseName(databaseName);
-            mysqlDataSource.setUser(username);
-            mysqlDataSource.setPassword(password);
-            mysqlDataSource.setPort(port);
-            // See http://dev.mysql.com/doc/refman/5.0/en/connector-j-reference-configuration-properties.html
-            mysqlDataSource.setURL(jdbcConnectionString);
-            dataSource = mysqlDataSource;
+        } catch (SQLException e) {
+            throw new IOException(e);
         }
     }
 

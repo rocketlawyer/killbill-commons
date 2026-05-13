@@ -15,9 +15,6 @@
  */
 package org.skife.jdbi.v2.spring;
 
-import org.apache.log4j.AppenderSkeleton;
-import org.apache.log4j.BasicConfigurator;
-import org.apache.log4j.spi.LoggingEvent;
 import org.junit.experimental.categories.Category;
 import org.skife.jdbi.derby.DerbyHelper;
 import org.skife.jdbi.v2.DBI;
@@ -35,27 +32,6 @@ import javax.sql.DataSource;
 @Category(JDBITests.class)
 public class TestDBIFactoryBean extends AbstractDependencyInjectionSpringContextTests
 {
-    static {
-        BasicConfigurator.configure(new AppenderSkeleton() {
-
-            @Override
-            protected void append(LoggingEvent event)
-            {
-            }
-
-            @Override
-            public boolean requiresLayout()
-            {
-                return false;
-            }
-
-            @Override
-            public void close()
-            {
-            }
-        });
-    }
-
     protected Service service;
     protected DataSource derby;
     protected DerbyHelper derbyHelper;

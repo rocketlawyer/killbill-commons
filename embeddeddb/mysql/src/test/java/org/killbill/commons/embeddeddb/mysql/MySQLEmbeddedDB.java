@@ -126,20 +126,24 @@ public class MySQLEmbeddedDB extends EmbeddedDB {
     }
 
     protected void createDataSource() throws IOException {
-        if (useConnectionPooling()) {
-            dataSource = createHikariDataSource();
-        } else {
-            final MariaDbDataSource mariaDBDataSource = new MariaDbDataSource();
-            try {
-                mariaDBDataSource.setUrl(jdbcConnectionString);
-            } catch (final SQLException e) {
-                throw new IOException(e);
+        try {
+            if (useConnectionPooling()) {
+                dataSource = createHikariDataSource();
+            } else {
+                final MariaDbDataSource mariaDBDataSource = new MariaDbDataSource();
+                try {
+                    mariaDBDataSource.setUrl(jdbcConnectionString);
+                } catch (final SQLException e) {
+                    throw new IOException(e);
+                }
+                mariaDBDataSource.setDatabaseName(databaseName);
+                mariaDBDataSource.setUser(username);
+                mariaDBDataSource.setPassword(password);
+                mariaDBDataSource.setPort(port);
+                dataSource = mariaDBDataSource;
             }
-            mariaDBDataSource.setDatabaseName(databaseName);
-            mariaDBDataSource.setUser(username);
-            mariaDBDataSource.setPassword(password);
-            mariaDBDataSource.setPort(port);
-            dataSource = mariaDBDataSource;
+        } catch (SQLException e) {
+            throw new IOException(e);
         }
     }
 

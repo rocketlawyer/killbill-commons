@@ -15,10 +15,10 @@
  */
 package org.skife.jdbi.v2.logging;
 
-import org.apache.log4j.Level;
-import org.apache.log4j.Logger;
-import org.apache.log4j.Priority;
 import org.skife.jdbi.v2.DBI;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.slf4j.event.Level;
 
 /**
  * Logs SQL via Log4J
@@ -26,14 +26,14 @@ import org.skife.jdbi.v2.DBI;
 public final class Log4JLog extends FormattedLog
 {
     private final Logger log;
-    private Priority level;
+    private Level level;
 
     /**
      * Logs to org.skife.jdbi.v2 logger at the debug level
      */
     public Log4JLog()
     {
-        this(Logger.getLogger(DBI.class.getPackage().getName()));
+        this(LoggerFactory.getLogger(DBI.class.getPackage().getName()));
     }
 
     /**
@@ -49,7 +49,7 @@ public final class Log4JLog extends FormattedLog
      * @param log The logger to log to
      * @param level the priority to log at
      */
-    public Log4JLog(Logger log, Priority level) {
+    public Log4JLog(Logger log, Level level) {
         this.log = log;
         this.level = level;
     }
@@ -57,12 +57,12 @@ public final class Log4JLog extends FormattedLog
     @Override
     protected boolean isEnabled()
     {
-        return log.isEnabledFor(level);
+        return log.isInfoEnabled();
     }
 
     @Override
     protected void log(String msg)
     {
-        log.log(level, msg);
+        log.info(msg);
     }
 }
