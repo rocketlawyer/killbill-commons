@@ -144,6 +144,11 @@
             <scope>test</scope>
         </dependency>
         <dependency>
+            <groupId>org.glassfish.jersey.core</groupId>
+            <artifactId>jersey-server</artifactId>
+            <optional>true</optional>
+        </dependency>
+        <dependency>
             <groupId>org.kill-bill.commons</groupId>
             <artifactId>killbill-metrics</artifactId>
         </dependency>
