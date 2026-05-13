@@ -18,6 +18,7 @@ package org.killbill.commons.skeleton.modules;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -28,23 +29,48 @@ import javax.servlet.http.HttpServlet;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Joiner;
 import com.google.common.base.MoreObjects;
+import com.google.common.base.Splitter;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
-import com.sun.jersey.guice.spi.container.servlet.GuiceContainer;
+import org.glassfish.jersey.logging.LoggingFeature;
+import org.glassfish.jersey.servlet.ServletContainer;
 
 public class JerseyBaseServerModule extends BaseServerModule {
 
     private static final Joiner joiner = Joiner.on(";");
 
+    /**
+     * Jersey 2 servlet init parameter for explicit provider classes (filters, features, etc.).
+     */
+    public static final String JERSEY_SERVER_PROVIDER_CLASSNAMES = "jersey.config.server.provider.classnames";
+
+    /**
+     * Jersey 2 servlet init parameter for package scanning.
+     */
+    public static final String JERSEY_SERVER_PROVIDER_PACKAGES = "jersey.config.server.provider.packages";
+
+    /**
+     * Jersey 1.x init parameter name, still accepted as input via {@link BaseServerModuleBuilder#addJerseyParam}
+     * and translated into {@link #JERSEY_SERVER_PROVIDER_CLASSNAMES}.
+     */
     @VisibleForTesting
     static final String JERSEY_CONTAINER_REQUEST_FILTERS = "com.sun.jersey.spi.container.ContainerRequestFilters";
+
+    /**
+     * Jersey 1.x init parameter name, still accepted as input via {@link BaseServerModuleBuilder#addJerseyParam}
+     * and merged into {@link #JERSEY_SERVER_PROVIDER_CLASSNAMES}.
+     */
     @VisibleForTesting
     static final String JERSEY_CONTAINER_RESPONSE_FILTERS = "com.sun.jersey.spi.container.ContainerResponseFilters";
+
+    /**
+     * Jersey 1.x init parameter name, still accepted as input via {@link BaseServerModuleBuilder#addJerseyParam}
+     * and translated into {@link LoggingFeature#LOGGING_FEATURE_VERBOSITY}.
+     */
     @VisibleForTesting
     static final String JERSEY_DISABLE_ENTITYLOGGING = "com.sun.jersey.config.feature.logging.DisableEntitylogging";
 
-    // See com.sun.jersey.api.core.ResourceConfig
     private final ImmutableMap.Builder<String, String> jerseyParams;
 
     public JerseyBaseServerModule(final Map<String, ArrayList<Entry<Class<? extends Filter>, Map<String, String>>>> filters,
@@ -73,17 +99,28 @@ public class JerseyBaseServerModule extends BaseServerModule {
         final String containerResponseFilters = manuallySpecifiedResponseFilters + joiner.join(Lists.reverse(jerseyFilters));
 
         this.jerseyParams = new ImmutableMap.Builder<String, String>();
-        if (!containerRequestFilters.isEmpty()) {
-            this.jerseyParams.put(JERSEY_CONTAINER_REQUEST_FILTERS, containerRequestFilters);
-        }
-        if (!containerResponseFilters.isEmpty()) {
-            this.jerseyParams.put(JERSEY_CONTAINER_RESPONSE_FILTERS, containerResponseFilters);
+        final String providerClassNames = mergeSemicolonListsToCommaClassnames(containerRequestFilters, containerResponseFilters);
+        if (!providerClassNames.isEmpty()) {
+            this.jerseyParams.put(JERSEY_SERVER_PROVIDER_CLASSNAMES, providerClassNames);
         }
 
-        // The LoggingFilter will log the body by default, which breaks StreamingOutput
         final String disableEntityLogging = MoreObjects.firstNonNull(Strings.emptyToNull(jerseyParams.remove(JERSEY_DISABLE_ENTITYLOGGING)), "true");
-        this.jerseyParams.put(JERSEY_DISABLE_ENTITYLOGGING, disableEntityLogging)
+        final LoggingFeature.Verbosity verbosity = Boolean.parseBoolean(disableEntityLogging)
+                                                     ? LoggingFeature.Verbosity.HEADERS_ONLY
+                                                     : LoggingFeature.Verbosity.PAYLOAD_ANY;
+        this.jerseyParams.put(LoggingFeature.LOGGING_FEATURE_VERBOSITY, verbosity.name())
                          .putAll(jerseyParams);
+    }
+
+    private static String mergeSemicolonListsToCommaClassnames(final String requestList, final String responseList) {
+        final LinkedHashSet<String> ordered = new LinkedHashSet<String>();
+        for (final String part : Splitter.on(';').omitEmptyStrings().trimResults().split(Strings.nullToEmpty(requestList))) {
+            ordered.add(part);
+        }
+        for (final String part : Splitter.on(';').omitEmptyStrings().trimResults().split(Strings.nullToEmpty(responseList))) {
+            ordered.add(part);
+        }
+        return Joiner.on(",").join(ordered);
     }
 
     @Override
@@ -98,8 +135,8 @@ public class JerseyBaseServerModule extends BaseServerModule {
 
         // Catch-all resources
         if (!jaxrsResources.isEmpty()) {
-            jerseyParams.put("com.sun.jersey.config.property.packages", joiner.join(jaxrsResources));
-            serveRegex(jaxrsUriPattern).with(GuiceContainer.class, jerseyParams.build());
+            jerseyParams.put(JERSEY_SERVER_PROVIDER_PACKAGES, joiner.join(jaxrsResources));
+            serveRegex(jaxrsUriPattern).with(ServletContainer.class, jerseyParams.build());
         }
     }
 

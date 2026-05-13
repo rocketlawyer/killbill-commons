@@ -22,6 +22,7 @@ import java.lang.reflect.Method;
 import javax.inject.Provider;
 import javax.ws.rs.HttpMethod;
 import javax.ws.rs.Path;
+import javax.ws.rs.ext.Providers;
 
 import org.killbill.commons.metrics.TimedResource;
 
@@ -30,20 +31,19 @@ import com.google.inject.TypeLiteral;
 import com.google.inject.matcher.Matchers;
 import com.google.inject.spi.TypeEncounter;
 import com.google.inject.spi.TypeListener;
-import com.sun.jersey.guice.spi.container.servlet.GuiceContainer;
 
 /**
  * A listener which adds method interceptors to timed resource methods.
  */
 public class TimedResourceListener implements TypeListener {
 
-    private final Provider<GuiceContainer> guiceContainer;
+    private final Provider<Providers> jaxRsProviders;
 
     private final Provider<MetricRegistry> metricRegistry;
 
-    public TimedResourceListener(final Provider<GuiceContainer> guiceContainer,
+    public TimedResourceListener(final Provider<Providers> jaxRsProviders,
                                  final Provider<MetricRegistry> metricRegistry) {
-        this.guiceContainer = guiceContainer;
+        this.jaxRsProviders = jaxRsProviders;
         this.metricRegistry = metricRegistry;
     }
 
@@ -66,7 +66,7 @@ public class TimedResourceListener implements TypeListener {
                             metricName = method.getName();
                         }
                         final TimedResourceInterceptor timedResourceInterceptor = new TimedResourceInterceptor(
-                                guiceContainer, metricRegistry, resourcePath, metricName, httpMethod.value());
+                                jaxRsProviders, metricRegistry, resourcePath, metricName, httpMethod.value());
                         encounter.bindInterceptor(Matchers.only(method), timedResourceInterceptor);
                     }
                 }

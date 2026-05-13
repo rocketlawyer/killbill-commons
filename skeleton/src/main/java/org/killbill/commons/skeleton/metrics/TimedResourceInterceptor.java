@@ -28,12 +28,11 @@ import javax.inject.Provider;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.ext.ExceptionMapper;
+import javax.ws.rs.ext.Providers;
 
 import org.killbill.commons.metrics.MetricTag;
 
 import com.codahale.metrics.MetricRegistry;
-import com.sun.jersey.guice.spi.container.servlet.GuiceContainer;
-import com.sun.jersey.spi.container.ExceptionMapperContext;
 import org.aopalliance.intercept.MethodInterceptor;
 import org.aopalliance.intercept.MethodInvocation;
 
@@ -43,18 +42,18 @@ import org.aopalliance.intercept.MethodInvocation;
 public class TimedResourceInterceptor implements MethodInterceptor {
 
     private final Map<String, Map<String, Object>> metricTagsByMethod = new ConcurrentHashMap<String, Map<String, Object>>();
-    private final Provider<GuiceContainer> jerseyContainer;
+    private final Provider<Providers> jaxRsProviders;
     private final Provider<MetricRegistry> metricRegistry;
     private final String resourcePath;
     private final String metricName;
     private final String httpMethod;
 
-    public TimedResourceInterceptor(final Provider<GuiceContainer> jerseyContainer,
+    public TimedResourceInterceptor(final Provider<Providers> jaxRsProviders,
                                     final Provider<MetricRegistry> metricRegistry,
                                     final String resourcePath,
                                     final String metricName,
                                     final String httpMethod) {
-        this.jerseyContainer = jerseyContainer;
+        this.jaxRsProviders = jaxRsProviders;
         this.metricRegistry = metricRegistry;
         this.resourcePath = resourcePath;
         this.metricName = metricName;
@@ -93,11 +92,14 @@ public class TimedResourceInterceptor implements MethodInterceptor {
     }
 
     private int mapException(final Throwable e) throws Exception {
-        final ExceptionMapperContext exceptionMapperContext = jerseyContainer.get().getWebApplication().getExceptionMapperContext();
-        @SuppressWarnings("unchecked") final ExceptionMapper<Throwable> exceptionMapper = exceptionMapperContext.find(e.getClass());
-
-        if (exceptionMapper != null) {
-            return exceptionMapper.toResponse(e).getStatus();
+        final Providers providers = jaxRsProviders.get();
+        if (providers != null) {
+            @SuppressWarnings({"unchecked", "rawtypes"})
+            final ExceptionMapper<Throwable> exceptionMapper =
+                    (ExceptionMapper<Throwable>) providers.getExceptionMapper((Class) e.getClass());
+            if (exceptionMapper != null) {
+                return exceptionMapper.toResponse(e).getStatus();
+            }
         }
         // If there's no mapping for it, assume 500
         return Response.Status.INTERNAL_SERVER_ERROR.getStatusCode();
