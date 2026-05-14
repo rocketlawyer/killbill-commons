@@ -23,6 +23,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import javax.inject.Singleton;
 import javax.servlet.Filter;
 import javax.servlet.http.HttpServlet;
 
@@ -125,6 +126,8 @@ public class JerseyBaseServerModule extends BaseServerModule {
 
     @Override
     protected void configureResources() {
+        bind(ServletContainer.class).in(Singleton.class);
+
         for (final String urlPattern : jaxrsServlets.keySet()) {
             serve(urlPattern).with(jaxrsServlets.get(urlPattern), jerseyParams.build());
         }
