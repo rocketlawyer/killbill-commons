@@ -20,6 +20,7 @@ import java.util.Set;
 
 import javax.ws.rs.ext.Providers;
 
+import org.glassfish.jersey.internal.JaxrsProviders;
 import org.killbill.commons.skeleton.metrics.TimedResourceListener;
 
 import com.codahale.metrics.MetricRegistry;
@@ -81,9 +82,9 @@ public class StatsModule extends AbstractModule {
         install(new AdminServletModule(healthCheckUri, metricsUri, pingUri, threadsUri));
 
         // Metrics/Jersey integration
-        final TimedResourceListener timedResourceTypeListener =
-                new TimedResourceListener(getProvider(Providers.class), getProvider(MetricRegistry.class));
-        bindListener(Matchers.any(), timedResourceTypeListener);
+        //final TimedResourceListener timedResourceTypeListener =
+        //        new TimedResourceListener(getProvider(Providers.class), getProvider(MetricRegistry.class));
+        //bindListener(Matchers.any(), timedResourceTypeListener);
     }
 
     @Provides
