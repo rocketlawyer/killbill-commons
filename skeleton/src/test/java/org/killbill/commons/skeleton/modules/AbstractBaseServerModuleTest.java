@@ -22,6 +22,7 @@ import java.net.ServerSocket;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.servlet.DefaultServlet;
 import org.eclipse.jetty.servlet.ServletContextHandler;
+import org.killbill.commons.skeleton.jersey.GuiceJerseyBridgeListener;
 import org.testng.Assert;
 
 import com.google.inject.Guice;
@@ -34,6 +35,7 @@ public abstract class AbstractBaseServerModuleTest {
 
     protected Server startServer(final Module... modules) throws Exception {
         final Injector injector = Guice.createInjector(modules);
+        GuiceJerseyBridgeListener.cacheGuiceInjector(injector);
 
         final Server server = new Server(getPort());
         final ServletContextHandler servletContextHandler = new ServletContextHandler();

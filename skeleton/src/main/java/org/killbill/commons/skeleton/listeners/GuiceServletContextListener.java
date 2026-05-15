@@ -18,6 +18,7 @@ package org.killbill.commons.skeleton.listeners;
 
 import javax.servlet.ServletContextEvent;
 
+import org.killbill.commons.skeleton.jersey.GuiceJerseyBridgeListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -52,6 +53,8 @@ public class GuiceServletContextListener extends com.google.inject.servlet.Guice
         }
 
         super.contextInitialized(event);
+
+        GuiceJerseyBridgeListener.cacheGuiceInjector((Injector) event.getServletContext().getAttribute(Injector.class.getName()));
     }
 
     private Module initializeGuiceModuleFromWebXML(final ServletContextEvent event) {

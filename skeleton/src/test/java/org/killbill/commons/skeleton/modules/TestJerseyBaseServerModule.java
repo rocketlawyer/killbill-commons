@@ -27,10 +27,13 @@ import org.asynchttpclient.Response;
 import org.eclipse.jetty.server.NetworkConnector;
 import org.eclipse.jetty.server.Server;
 import org.glassfish.jersey.logging.LoggingFeature;
+import org.killbill.commons.skeleton.jersey.GuiceJerseyBridgeListener;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
 public class TestJerseyBaseServerModule extends AbstractBaseServerModuleTest {
+
+    private static final String GUICE_JERSEY_BRIDGE = GuiceJerseyBridgeListener.class.getName();
 
     @Test(groups = "slow")
     public void testJerseyIntegration() throws Exception {
@@ -51,7 +54,8 @@ public class TestJerseyBaseServerModule extends AbstractBaseServerModuleTest {
         final BaseServerModuleBuilder builder1 = new BaseServerModuleBuilder();
         final JerseyBaseServerModule module1 = (JerseyBaseServerModule) builder1.build();
         final Map<String, String> jerseyParams1 = module1.getJerseyParams().build();
-        Assert.assertEquals(jerseyParams1.size(), 1);
+        Assert.assertEquals(jerseyParams1.size(), 2);
+        Assert.assertEquals(jerseyParams1.get(JerseyBaseServerModule.JERSEY_SERVER_PROVIDER_CLASSNAMES), GUICE_JERSEY_BRIDGE);
         Assert.assertEquals(jerseyParams1.get(LoggingFeature.LOGGING_FEATURE_VERBOSITY), LoggingFeature.Verbosity.HEADERS_ONLY.name());
 
         final BaseServerModuleBuilder builder2 = new BaseServerModuleBuilder();
@@ -59,7 +63,7 @@ public class TestJerseyBaseServerModule extends AbstractBaseServerModuleTest {
         final JerseyBaseServerModule module2 = (JerseyBaseServerModule) builder2.build();
         final Map<String, String> jerseyParams2 = module2.getJerseyParams().build();
         Assert.assertEquals(jerseyParams2.size(), 2);
-        Assert.assertEquals(jerseyParams2.get(JerseyBaseServerModule.JERSEY_SERVER_PROVIDER_CLASSNAMES), "filter1,filter2,filter3");
+        Assert.assertEquals(jerseyParams2.get(JerseyBaseServerModule.JERSEY_SERVER_PROVIDER_CLASSNAMES), "filter1,filter2,filter3," + GUICE_JERSEY_BRIDGE);
         Assert.assertEquals(jerseyParams2.get(LoggingFeature.LOGGING_FEATURE_VERBOSITY), LoggingFeature.Verbosity.HEADERS_ONLY.name());
 
         final BaseServerModuleBuilder builder3 = new BaseServerModuleBuilder();
@@ -68,7 +72,7 @@ public class TestJerseyBaseServerModule extends AbstractBaseServerModuleTest {
         final JerseyBaseServerModule module3 = (JerseyBaseServerModule) builder3.build();
         final Map<String, String> jerseyParams3 = module3.getJerseyParams().build();
         Assert.assertEquals(jerseyParams3.size(), 3);
-        Assert.assertEquals(jerseyParams3.get(JerseyBaseServerModule.JERSEY_SERVER_PROVIDER_CLASSNAMES), "bar,filter1,filter2,filter3");
+        Assert.assertEquals(jerseyParams3.get(JerseyBaseServerModule.JERSEY_SERVER_PROVIDER_CLASSNAMES), "bar,filter1,filter2,filter3," + GUICE_JERSEY_BRIDGE);
         Assert.assertEquals(jerseyParams3.get(LoggingFeature.LOGGING_FEATURE_VERBOSITY), LoggingFeature.Verbosity.HEADERS_ONLY.name());
         Assert.assertEquals(jerseyParams3.get("foo"), "qux");
 
@@ -81,7 +85,7 @@ public class TestJerseyBaseServerModule extends AbstractBaseServerModuleTest {
         final JerseyBaseServerModule module4 = (JerseyBaseServerModule) builder4.build();
         final Map<String, String> jerseyParams4 = module4.getJerseyParams().build();
         Assert.assertEquals(jerseyParams4.size(), 3);
-        Assert.assertEquals(jerseyParams4.get(JerseyBaseServerModule.JERSEY_SERVER_PROVIDER_CLASSNAMES), "bar,filter1,filter2,filter3,bar2");
+        Assert.assertEquals(jerseyParams4.get(JerseyBaseServerModule.JERSEY_SERVER_PROVIDER_CLASSNAMES), "bar,filter1,filter2,filter3,bar2," + GUICE_JERSEY_BRIDGE);
         Assert.assertEquals(jerseyParams4.get(LoggingFeature.LOGGING_FEATURE_VERBOSITY), LoggingFeature.Verbosity.PAYLOAD_ANY.name());
         Assert.assertEquals(jerseyParams4.get("foo"), "qux");
     }

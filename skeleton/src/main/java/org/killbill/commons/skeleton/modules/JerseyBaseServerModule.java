@@ -36,6 +36,7 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import org.glassfish.jersey.logging.LoggingFeature;
 import org.glassfish.jersey.servlet.ServletContainer;
+import org.killbill.commons.skeleton.jersey.GuiceJerseyBridgeListener;
 
 public class JerseyBaseServerModule extends BaseServerModule {
 
@@ -100,7 +101,8 @@ public class JerseyBaseServerModule extends BaseServerModule {
         final String containerResponseFilters = manuallySpecifiedResponseFilters + joiner.join(Lists.reverse(jerseyFilters));
 
         this.jerseyParams = new ImmutableMap.Builder<String, String>();
-        final String providerClassNames = mergeSemicolonListsToCommaClassnames(containerRequestFilters, containerResponseFilters);
+        String providerClassNames = mergeSemicolonListsToCommaClassnames(containerRequestFilters, containerResponseFilters);
+        providerClassNames = appendProviderClassname(providerClassNames, GuiceJerseyBridgeListener.class.getName());
         if (!providerClassNames.isEmpty()) {
             this.jerseyParams.put(JERSEY_SERVER_PROVIDER_CLASSNAMES, providerClassNames);
         }
@@ -121,6 +123,18 @@ public class JerseyBaseServerModule extends BaseServerModule {
         for (final String part : Splitter.on(';').omitEmptyStrings().trimResults().split(Strings.nullToEmpty(responseList))) {
             ordered.add(part);
         }
+        return Joiner.on(",").join(ordered);
+    }
+
+    /**
+     * Appends a provider class for Jersey to register, preserving order and skipping duplicates.
+     */
+    private static String appendProviderClassname(final String commaSeparatedClassnames, final String classname) {
+        final LinkedHashSet<String> ordered = new LinkedHashSet<String>();
+        for (final String part : Splitter.on(',').omitEmptyStrings().trimResults().split(Strings.nullToEmpty(commaSeparatedClassnames))) {
+            ordered.add(part);
+        }
+        ordered.add(classname);
         return Joiner.on(",").join(ordered);
     }
 
